@@ -8,15 +8,16 @@ const gulp = require('gulp'),
 	newer = require('gulp-newer'),
 	responsive = require('gulp-responsive'),
 	del = require('del'),
-	babel = require('gulp-babel');
+	babel = require('gulp-babel'),
+	svgo = require('gulp-svgo');
 
 // Локальный сервер
 gulp.task('browser-sync', function () {
 	browserSync.init({
 		server: {
 			baseDir: 'dist',
-			browser: 'chrome'
 		},
+		browser: 'chrome',
 		notify: false,
 		online: true, // Для работы офлайн
 		// tunnel: true, tunnel: 'projectname', // Страница тунеля: http://projectname.localtunnel.me
@@ -74,7 +75,13 @@ gulp.task('img-responsive-2x', async function () {
 		.pipe(gulp.dest('dist/img/@2x'))
 });
 
-gulp.task('img', gulp.series('img-responsive-1x', 'img-responsive-2x', bsReload));
+gulp.task('img-svg', async function () {
+	return gulp.src('app/img/_src/**/*.svg')
+		.pipe(svgo())
+		.pipe(gulp.dest('dist/img'))
+});
+
+gulp.task('img', gulp.series('img-svg', 'img-responsive-1x', 'img-responsive-2x', bsReload));
 
 gulp.task('cleanimg', function () {
 	return del(['app/img/@*'], { force: true })
